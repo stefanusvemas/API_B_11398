@@ -41,7 +41,10 @@ class ContentController extends Controller
             'title' => 'required|max:60',
             'released_year' => 'required',
             'genre' => 'required',
-            'type' => 'required'
+            'type' => [
+                'required',
+                Rule::in(['Free', 'Paid']),
+            ]
         ]);
         if ($validate->fails())
             return response(['message' => $validate->errors()], 400);
@@ -91,7 +94,10 @@ class ContentController extends Controller
             'title' => 'required|max:60',
             'released_year' => 'required',
             'genre' => 'required',
-            'type' => 'required'
+            'type' => [
+                'required',
+                Rule::in(['Free', 'Paid']),
+            ]
         ]);
 
         if ($validate->fails())

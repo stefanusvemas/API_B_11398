@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Illuminate\Support\Str;
+
 
 class User extends Authenticatable
 {
@@ -27,7 +29,41 @@ class User extends Authenticatable
         'password',
         'no_telp',
         'status',
+        'image'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            $user->id = $user->generateUserId();
+        });
+    }
+
+    public function generateUserId()
+    {
+        $year = now()->format('y');
+        $month = now()->format('m');
+        $index = $this->getNextIndex();
+
+        return "{$year}.{$month}.{$index}";
+    }
+
+    public function getNextIndex()
+    {
+        $latestUser = self::where('id', 'like', now()->format('y.m.%'))
+            ->latest('id')
+            ->first();
+
+        if ($latestUser) {
+            $index = intval(Str::afterLast($latestUser->id, '.')) + 1;
+        } else {
+            $index = 1;
+        }
+
+        return $index;
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -45,6 +81,7 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
+        'id' => 'string',
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];

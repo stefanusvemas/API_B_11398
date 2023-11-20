@@ -22,7 +22,7 @@ class ActivitiesController extends Controller
         if (count($activities) > 0) {
             return response([
                 'message' => 'Retrieve All Success',
-                'data' => $$activities
+                'data' => $activities
             ], 200);
         }
 
@@ -42,7 +42,6 @@ class ActivitiesController extends Controller
         $validate = Validator::make($storeData, [
             'id_user' => 'required',
             'id_content' => 'required',
-            'accessed_at' => 'required|date',
         ]);
         if ($validate->fails())
             return response(['message' => $validate->errors()], 400);
@@ -57,6 +56,11 @@ class ActivitiesController extends Controller
             return response(['message' => 'Content not Found'], 400);
         }
 
+        if ($content->type == 'Paid' && $user->status == 0) {
+            return response(['message' => 'Content is Paid. User must have a subscription to access.'], 400);
+        }
+
+        $storeData['accessed_at'] = date('Y-m-d H:i:s');
         $activities = Activities::create($storeData);
         return response([
             'message' => $user->name . ' accessed ' . $content->title . ' at ' . $activities['accessed_at'] . '.', 'data' => $activities

@@ -20,8 +20,9 @@ class AuthController extends Controller
         $validate = validator::make($registrationData, [
             'name' => 'required|max:60',
             'email' => 'required|email:rfc,dns|unique:users',
-            'password' => 'required',
-            'no_telp' => 'required'
+            'password' => 'required|min:8',
+            'no_telp' => 'required|regex:/^08[0-9]{9,11}$/',
+            'image' => 'required|mimes:jpg,jpeg,png|max:2048',
         ]);
         if ($validate->fails()) {
             return response(['message' => $validate->errors()], 400);
